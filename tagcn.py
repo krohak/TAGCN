@@ -45,7 +45,7 @@ output = tf.placeholder(tf.float32, [None])
 
 
 with tf.variable_scope( name + '_vars'):
-    for i in range(features.shape[0]):
+    for i in range(Nl):
         conv = tf.get_variable("conv", shape=[1,Fl])
         for k in range(Kl):
             for c in range(Cl):
@@ -56,4 +56,3 @@ with tf.variable_scope( name + '_vars'):
                     conv = tf.add(conv,tf.multiply(s[0,0],var_gs))
 		    tf.get_variable_scope().reuse_variables()
         print(conv)
-
