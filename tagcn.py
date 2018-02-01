@@ -17,32 +17,32 @@ flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
 
-path_weight_matrix = np.load("path_weights.dat")
-path_weight_matrix.shape
-path_weight_matrix = path_weight_matrix.astype('float32')
+pwm = np.load("path_weights.dat")
+pwm = pwm.astype('float32')
 
-path_weight_matrix[1,:,1].shape
-
-f=features.todense()
-output=[]
-output = np.asarray(output,dtype=np.float32)
-f.shape
-f.dtype, path_weight_matrix.dtype
+feat=features.todense()
 
 from inits import *
 var_gs = {}
 name = '01'
 Fl = 8
 Kl = 2
-Cl = features.shape[1]
-Nl = features.shape[0]
+#Cl = features.shape[1]
+#Nl = features.shape[0]
+Cl = 10
+Nl = 10
 from tensorflow.python.framework.ops import reset_default_graph
 reset_default_graph()
 
 f = tf.placeholder(tf.float32, [Nl, Cl])
 path_weight_matrix = tf.placeholder(tf.float32, [Nl, Nl, 2])
-output = tf.placeholder(tf.float32, [None])
+#output = tf.placeholder(tf.float32, [None])
 
+
+#f = tf.get_variable(name='f',dtype=tf.float32, shape=[Nl, Cl])
+#path_weight_matrix = tf.get_variable(name='path_weight_matrix',dtype=tf.float32, shape=[Nl, Nl, 2])
+#output = tf.get_variable(name='output',dtype=tf.float32, shape=[1,Fl])
+outputs=[]
 
 with tf.variable_scope( name + '_vars'):
     for i in range(Nl):
@@ -55,4 +55,10 @@ with tf.variable_scope( name + '_vars'):
                     s = tf.matmul(tf.transpose(tf.expand_dims(w_k, 1)),tf.expand_dims(x_c, 1))
                     conv = tf.add(conv,tf.multiply(s[0,0],var_gs))
 		    tf.get_variable_scope().reuse_variables()
-        print(conv)
+		    print(conv.shape)
+	outputs.append(conv)
+
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+print(sess.run(outputs, feed_dict={path_weight_matrix: pwm[:10,:10],f: feat[:10,:10]}))
