@@ -1,4 +1,4 @@
 # TAGCN
 Tensorflow Implementation of the paper "Topology Adaptive Graph Convolutional Networks" (Du et al., 2017)
 
-# WARNING: WORK IN PROGRESS
+# NOTE: WORK IN PROGRESS
