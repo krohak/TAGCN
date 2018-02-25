@@ -1,0 +1,40 @@
+- View GCN in Tensorboard
+
+- Train TAGCN for small k, c, n
+
+- Build small TAGCN using the data
+
+
+
+
+optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
+
+
+loss += FLAGS.weight_decay * tf.nn.l2_loss(var)
+
+
+loss += masked_softmax_cross_entropy(self.outputs, self.placeholders['labels'],
+		                                          self.placeholders['labels_mask'])
+
+
+accuracy = masked_accuracy(self.outputs, self.placeholders['labels'],
+                                        self.placeholders['labels_mask'])
+
+opt_op = optimizer.minimize(self.loss)
+
+
+# tf.sess
+
+for epoch in range(FLAGS.epochs):
+
+
+	outs = sess.run([opt_op, loss, accuracy], feed_dict=feed_dict)
+
+
+	print("Epoch:", '%04d' % (epoch + 1), "train_loss=", "{:.5f}".format(outs[1]),
+          "train_acc=", "{:.5f}".format(outs[2]))
+
+
+
+
+#tf.nn.softmax(self.outputs)
