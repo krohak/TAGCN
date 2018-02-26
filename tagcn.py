@@ -59,8 +59,8 @@ with tf.variable_scope(name + '_vars'):
 
         vars_F['weights_' + str(1) + '_' + str(k)] = tf.get_variable(name=('weights_' + str(1) + '_' + str(k)),
                                                                      initializer=tf.contrib.layers.xavier_initializer(),
-                                                                     shape=[Fl,Fl]) # prev [Fl,Fl]
-    initial = tf.zeros([Nl,Fl], dtype=tf.float32) # prev [Nl,Fl]
+                                                                     shape=[Fl,7]) # prev [Fl,Fl]
+    initial = tf.zeros([Nl,7], dtype=tf.float32) # prev [Nl,Fl]
     vars_F['bias_' + str(1)] = tf.Variable(initial, name='bias')
 
 
@@ -111,30 +111,30 @@ def layer(input_t,output_dim,num):
     return conv
 
 res = layer(features_m,output_dim=[Nl,Fl],num=0)
-conv = layer(res,output_dim=[Nl,Fl],num=1)
+conv = layer(res,output_dim=[Nl,7],num=1)
 
-# output layer
-
-# droupout
-conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
-
-w_k = pwm[:,:,k]
-
-s = tf.matmul(w_k,conv)
-
-G_k = vars_F['weights_' + str(2)]
-
-conv = tf.matmul(s,G_k)
-
-
-print(conv.shape)
-# add bias
-bias = vars_F['bias_' + str(2)]
-conv = tf.add(conv,bias)
+# # output layer
+#
+# # droupout
+# conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
+#
+# w_k = pwm[:,:,k]
+#
+# s = tf.matmul(w_k,conv)
+#
+# G_k = vars_F['weights_' + str(2)]
+#
+# conv = tf.matmul(s,G_k)
 
 
-# apply non-linearity
-conv = tf.nn.relu(conv)
+# print(conv.shape)
+# # add bias
+# bias = vars_F['bias_' + str(2)]
+# conv = tf.add(conv,bias)
+#
+#
+# # apply non-linearity
+# conv = tf.nn.relu(conv)
 
 
 # for training
