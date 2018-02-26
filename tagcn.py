@@ -95,8 +95,9 @@ def layer(input_t,output_dim,num):
 
     conv = tf.add(conv,bias)
 
-    # apply non-linearity
-    conv = tf.nn.relu(conv)
+    # apply non-linearity to first layer
+    if num == 0:
+        conv = tf.nn.relu(conv)
 
     return conv
 

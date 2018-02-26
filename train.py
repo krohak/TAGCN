@@ -16,10 +16,10 @@ tf.set_random_seed(seed)
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string('dataset', 'cora', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
-flags.DEFINE_string('model', 'gcn', 'Model string.')  # 'gcn', 'gcn_cheby', 'dense'
+flags.DEFINE_string('model', 'tagcn', 'Model string.')  # 'gcn', 'gcn_cheby', 'dense'
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('epochs', 200, 'Number of epochs to train.')
-flags.DEFINE_integer('hidden1', 16, 'Number of units in hidden layer 1.')
+flags.DEFINE_integer('hidden1', 8, 'Number of units in hidden layer 1.')
 flags.DEFINE_float('dropout', 0.5, 'Dropout rate (1 - keep probability).')
 flags.DEFINE_float('weight_decay', 5e-4, 'Weight for L2 loss on embedding matrix.')
 flags.DEFINE_integer('early_stopping', 10, 'Tolerance for early stopping (# of epochs).')
@@ -29,7 +29,10 @@ flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
 
 # Some preprocessing
-features = preprocess_features(features)
+#features = preprocess_features(features)
+
+features = features.todense()
+
 if FLAGS.model == 'gcn':
     support = [preprocess_adj(adj)]
     num_supports = 1
@@ -42,13 +45,27 @@ elif FLAGS.model == 'dense':
     support = [preprocess_adj(adj)]  # Not used
     num_supports = 1
     model_func = MLP
+elif FLAGS.model == 'tagcn':
+    path_weight_matrix = np.load("path_weights.dat")
+    support =  path_weight_matrix.astype('float32')
+    num_supports = 1
+    model_func = TAGCN
 else:
     raise ValueError('Invalid argument for model: ' + str(FLAGS.model))
 
 # Define placeholders
+# placeholders = {
+#     'support': [tf.sparse_placeholder(tf.float32) for _ in range(num_supports)],
+#     'features': tf.sparse_placeholder(tf.float32, shape=tf.constant(features[2], dtype=tf.int64)),
+#     'labels': tf.placeholder(tf.float32, shape=(None, y_train.shape[1])),
+#     'labels_mask': tf.placeholder(tf.int32),
+#     'dropout': tf.placeholder_with_default(0., shape=()),
+#     'num_features_nonzero': tf.placeholder(tf.int32)  # helper variable for sparse dropout
+# }
+
 placeholders = {
-    'support': [tf.sparse_placeholder(tf.float32) for _ in range(num_supports)],
-    'features': tf.sparse_placeholder(tf.float32, shape=tf.constant(features[2], dtype=tf.int64)),
+    'support': [tf.placeholder(tf.float32, [Nl, Nl, Kl]) for _ in range(num_supports)],
+    'features': tf.placeholder(tf.float32, shape=[features.shape[0], features.shape[1]]),
     'labels': tf.placeholder(tf.float32, shape=(None, y_train.shape[1])),
     'labels_mask': tf.placeholder(tf.int32),
     'dropout': tf.placeholder_with_default(0., shape=()),
@@ -56,7 +73,7 @@ placeholders = {
 }
 
 # Create model
-model = model_func(placeholders, input_dim=features[2][1], logging=True)
+model = model_func(placeholders, input_dim=[features.shape[0], features.shape[1]], logging=True)
 
 # Initialize session
 sess = tf.Session()
