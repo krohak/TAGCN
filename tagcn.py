@@ -80,6 +80,9 @@ with tf.variable_scope( name + '_vars'):
     # apply non-linearity
     conv = tf.nn.relu(conv)
 
+# droupout
+conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
+
 # layer 2
 with tf.variable_scope( name + '_vars'):
 
@@ -110,6 +113,8 @@ with tf.variable_scope( name + '_vars'):
     # apply non-linearity
     conv = tf.nn.relu(conv)
 
+# droupout
+conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
 
 # output
 with tf.variable_scope( name + '_vars'):
