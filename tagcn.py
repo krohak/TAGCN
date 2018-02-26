@@ -71,14 +71,14 @@ with tf.variable_scope( name + '_vars'):
 
         outputs.append(conv)
 
-# add bias
-initial = tf.zeros([Nl,Fl], dtype=tf.float32)
-bias = tf.Variable(initial, name='bias')
+    # add bias
+    initial = tf.zeros([Nl,Fl], dtype=tf.float32)
+    bias = tf.Variable(initial, name='bias')
 
-conv = tf.add(conv,bias)
+    conv = tf.add(conv,bias)
 
-# apply non-linearity
-conv = tf.nn.relu(conv)
+    # apply non-linearity
+    conv = tf.nn.relu(conv)
 
 # layer 2
 with tf.variable_scope( name + '_vars'):
@@ -101,14 +101,14 @@ with tf.variable_scope( name + '_vars'):
 
         outputs.append(conv)
 
-# add bias
-initial = tf.zeros([Nl,Fl], dtype=tf.float32)
-bias = tf.Variable(initial, name='bias2')
+    # add bias
+    initial = tf.zeros([Nl,Fl], dtype=tf.float32)
+    bias = tf.Variable(initial, name='bias2')
 
-conv = tf.add(conv,bias)
+    conv = tf.add(conv,bias)
 
-# apply non-linearity
-conv = tf.nn.relu(conv)
+    # apply non-linearity
+    conv = tf.nn.relu(conv)
 
 
 # output
@@ -123,30 +123,37 @@ with tf.variable_scope( name + '_vars'):
     conv = tf.matmul(s,G_k)
 
 
-print(conv.shape)
-# add bias
-initial = tf.zeros([Nl,7], dtype=tf.float32)
-bias = tf.Variable(initial, name='bias3')
-conv = tf.add(conv,bias)
+    print(conv.shape)
+    # add bias
+    initial = tf.zeros([Nl,7], dtype=tf.float32)
+    bias = tf.Variable(initial, name='bias3')
+    conv = tf.add(conv,bias)
 
 
-# apply non-linearity
-conv = tf.nn.relu(conv)
+    # apply non-linearity
+    conv = tf.nn.relu(conv)
 
 
-
-accuracy = masked_accuracy(conv,y_train, train_mask)
-
-loss= 0
-loss += masked_softmax_cross_entropy(conv, y_train, train_mask)
+# for training
+accuracy1 = masked_accuracy(conv,y_train, train_mask)
+loss1= 0
+loss1 += masked_softmax_cross_entropy(conv, y_train, train_mask)
 
 optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
-opt_op = optimizer.minimize(loss)
+opt_op = optimizer.minimize(loss1)
+
+# for testing
+accuracy2 = masked_accuracy(conv,y_test, test_mask)
+loss2= 0
+loss2 += masked_softmax_cross_entropy(conv, y_test, test_mask)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
 for epoch in range(FLAGS.epochs):
 
-    evals = sess.run([opt_op,accuracy,loss],feed_dict={features_m:features,pwm:path_weight_matrix})
+    evals = sess.run([opt_op,loss1,accuracy1],feed_dict={features_m:features,pwm:path_weight_matrix})
     print(evals[1], evals[2])
+
+outs_val = sess.run([loss2, accuracy2], feed_dict={features_m:features,pwm:path_weight_matrix})
+print(outs_val[0], outs_val[1])
