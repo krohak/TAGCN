@@ -203,7 +203,8 @@ sess.run(tf.global_variables_initializer())
 for epoch in range(FLAGS.epochs):
 
     evals = sess.run([opt_op,loss1,accuracy1],feed_dict={features_m:features,pwm:path_weight_matrix})
-    print(evals[1], evals[2])
+    print("Test",evals[1], evals[2])
+
 
 outs_val = sess.run([loss2, accuracy2], feed_dict={features_m:features,pwm:path_weight_matrix})
 print(outs_val[0], outs_val[1])
