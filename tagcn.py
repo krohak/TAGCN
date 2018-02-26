@@ -48,18 +48,20 @@ with tf.variable_scope(name + '_vars'):
 
     for k in range(Kl):
 
-        vars_F['weights_' + str(0) + '_' + str(k)] = tf.get_variable(name=('weights_' + str(0) + '_' + str(k)),
-                                                                     initializer=tf.contrib.layers.xavier_initializer(),
-                                                                     shape=[Cl,Fl])
+        vars_F['weights_' + str(0) + '_' + str(k)] = glorot([Cl,Fl],name=('weights_' + str(0) + '_' + str(k)))
+        # tf.get_variable(name=('weights_' + str(0) + '_' + str(k)),
+        #                                                              initializer=tf.contrib.layers.xavier_initializer(),
+        #                                                              shape=[Cl,Fl])
     initial = tf.zeros([Nl,Fl], dtype=tf.float32)
     vars_F['bias_' + str(0)] = tf.Variable(initial, name='bias')
 
 
     for k in range(Kl):
 
-        vars_F['weights_' + str(1) + '_' + str(k)] = tf.get_variable(name=('weights_' + str(1) + '_' + str(k)),
-                                                                     initializer=tf.contrib.layers.xavier_initializer(),
-                                                                     shape=[Fl,7]) # prev [Fl,Fl]
+        vars_F['weights_' + str(1) + '_' + str(k)] = glorot([Fl,7],name=('weights_' + str(1) + '_' + str(k)))
+        # tf.get_variable(name=('weights_' + str(1) + '_' + str(k)),
+        #                                                              initializer=tf.contrib.layers.xavier_initializer(),
+        #                                                              shape=[Fl,7]) # prev [Fl,Fl]
     initial = tf.zeros([Nl,7], dtype=tf.float32) # prev [Nl,Fl]
     vars_F['bias_' + str(1)] = tf.Variable(initial, name='bias')
 

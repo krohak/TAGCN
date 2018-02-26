@@ -210,6 +210,7 @@ class TAGCN(Model):
                                             output_dim=FLAGS.hidden1,
                                             placeholders=self.placeholders,
                                             act=tf.nn.relu,
+                                            bias = True,
                                             dropout=True,
                                             sparse_inputs=False,
                                             logging=self.logging))
@@ -218,6 +219,7 @@ class TAGCN(Model):
                                             output_dim=self.output_dim,
                                             placeholders=self.placeholders,
                                             act=lambda x: x,
+                                            bias = True,
                                             dropout=True,
                                             logging=self.logging))
 
