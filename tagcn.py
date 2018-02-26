@@ -113,74 +113,6 @@ def layer(input_t,output_dim,num):
 res = layer(features_m,output_dim=[Nl,Fl],num=0)
 conv = layer(res,output_dim=[Nl,Fl],num=1)
 
-# conv = np.zeros([Nl,Fl],dtype=np.float32)
-# #tf.placeholder(tf.float32, shape=[Nl,Fl])
-#
-# # droupout
-# features_m = tf.nn.dropout(features_m, 1-FLAGS.dropout)
-#
-# # layer 1
-# for k in range(Kl):
-#
-#     w_k = pwm[:,:,k]
-#
-#     s = tf.matmul(w_k,features_m)
-#
-#     G_k = vars_F['weights_' + str(0) + '_' + str(k)]
-#
-#     res = tf.matmul(s,G_k)
-#
-#     outputs.append(res)
-#
-#     conv = tf.add(conv,res)
-#
-#     print(conv.shape)
-#
-#     outputs.append(conv)
-#
-# res = conv
-# # add bias
-# bias = vars_F['bias_' + str(0)]
-#
-# res = tf.add(res,bias)
-#
-# # apply non-linearity
-# res = tf.nn.relu(res)
-#
-# # droupout
-# res = tf.nn.dropout(res, 1-FLAGS.dropout)
-#
-# # layer 2
-#
-# conv = np.zeros([Fl,Fl],dtype=np.float32)
-#
-# for k in range(Kl):
-#
-#     w_k = pwm[:,:,k]
-#
-#     s = tf.matmul(w_k,res)
-#
-#     G_k = vars_F['weights_' + str(1) + '_' + str(k)]
-#
-#     res = tf.matmul(s,G_k)
-#
-#     outputs.append(res)
-#
-#     conv = tf.add(conv,res)
-#
-#     print(conv.shape)
-#
-#     outputs.append(conv)
-#
-# # add bias
-# bias = vars_F['bias_' + str(1)]
-#
-# conv = tf.add(conv,bias)
-#
-# # apply non-linearity
-# conv = tf.nn.relu(conv)
-
-
 # output layer
 
 # droupout
@@ -212,9 +144,9 @@ loss1= 0
 loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(0)])
 loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(1)])
 loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(0)])
-# loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(0)])
-# loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(1)])
-# loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(1)])
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(0)])
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(1)])
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(1)])
 # Cross entropy error
 loss1 += masked_softmax_cross_entropy(conv, y_train, train_mask)
 
@@ -228,9 +160,9 @@ loss2= 0
 loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(0)])
 loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(1)])
 loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(0)])
-# loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(0)])
-# loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(1)])
-# loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(1)])
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(0)])
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(1)])
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(1)])
 # Cross entropy error
 loss2 += masked_softmax_cross_entropy(conv, y_test, test_mask)
 
