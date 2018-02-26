@@ -197,6 +197,20 @@ loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(1)])
 # Cross entropy error
 loss2 += masked_softmax_cross_entropy(conv, y_test, test_mask)
 
+
+# for validation
+accuracy3 = masked_accuracy(conv,y_val, val_mask)
+loss3= 0
+# weight decay loss
+loss3 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(0)])
+loss3 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(1)])
+loss3 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(0)])
+loss3 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(0)])
+loss3 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(1)])
+loss3 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(1)])
+# Cross entropy error
+loss3 += masked_softmax_cross_entropy(conv, y_val, val_mask)
+
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
@@ -205,6 +219,8 @@ for epoch in range(FLAGS.epochs):
     evals = sess.run([opt_op,loss1,accuracy1],feed_dict={features_m:features,pwm:path_weight_matrix})
     print("Test",evals[1], evals[2])
 
+    evals = sess.run([loss3,accuracy3],feed_dict={features_m:features,pwm:path_weight_matrix})
+    print("Validation",evals[0], evals[1])
 
 outs_val = sess.run([loss2, accuracy2], feed_dict={features_m:features,pwm:path_weight_matrix})
 print(outs_val[0], outs_val[1])
