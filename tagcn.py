@@ -171,6 +171,14 @@ conv = tf.nn.relu(conv)
 # for training
 accuracy1 = masked_accuracy(conv,y_train, train_mask)
 loss1= 0
+# weight decay loss
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(0)])
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(1)])
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(0)])
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(0)])
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(1)])
+loss1 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(1)])
+# Cross entropy error
 loss1 += masked_softmax_cross_entropy(conv, y_train, train_mask)
 
 optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
@@ -179,6 +187,14 @@ opt_op = optimizer.minimize(loss1)
 # for testing
 accuracy2 = masked_accuracy(conv,y_test, test_mask)
 loss2= 0
+# weight decay loss
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(0)])
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(0) + '_' + str(1)])
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(0)])
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(0)])
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['weights_' + str(1) + '_' + str(1)])
+loss2 += FLAGS.weight_decay * tf.nn.l2_loss(vars_F['bias_' + str(1)])
+# Cross entropy error
 loss2 += masked_softmax_cross_entropy(conv, y_test, test_mask)
 
 sess = tf.Session()
