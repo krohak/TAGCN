@@ -59,8 +59,8 @@ with tf.variable_scope(name + '_vars'):
 
         vars_F['weights_' + str(1) + '_' + str(k)] = tf.get_variable(name=('weights_' + str(1) + '_' + str(k)),
                                                                      initializer=tf.contrib.layers.xavier_initializer(),
-                                                                     shape=[Fl,Fl])
-    initial = tf.zeros([Nl,Fl], dtype=tf.float32)
+                                                                     shape=[Fl,7]) # prev [Fl,Fl]
+    initial = tf.zeros([Nl,7], dtype=tf.float32) # prev [Nl,Fl]
     vars_F['bias_' + str(1)] = tf.Variable(initial, name='bias')
 
 
@@ -143,29 +143,29 @@ conv = tf.add(conv,bias)
 # apply non-linearity
 conv = tf.nn.relu(conv)
 
-# droupout
-conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
-
-
-
-# output layer
-w_k = pwm[:,:,k]
-
-s = tf.matmul(w_k,conv)
-
-G_k = vars_F['weights_' + str(2)]
-
-conv = tf.matmul(s,G_k)
-
-
-print(conv.shape)
-# add bias
-bias = vars_F['bias_' + str(2)]
-conv = tf.add(conv,bias)
-
-
-# apply non-linearity
-conv = tf.nn.relu(conv)
+# # droupout
+# conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
+#
+#
+#
+# # output layer
+# w_k = pwm[:,:,k]
+#
+# s = tf.matmul(w_k,conv)
+#
+# G_k = vars_F['weights_' + str(2)]
+#
+# conv = tf.matmul(s,G_k)
+#
+#
+# print(conv.shape)
+# # add bias
+# bias = vars_F['bias_' + str(2)]
+# conv = tf.add(conv,bias)
+#
+#
+# # apply non-linearity
+# conv = tf.nn.relu(conv)
 
 
 # for training
@@ -218,7 +218,7 @@ for epoch in range(FLAGS.epochs):
 
     evals = sess.run([opt_op,loss1,accuracy1],feed_dict={features_m:features,pwm:path_weight_matrix})
     evals2 = sess.run([loss3,accuracy3],feed_dict={features_m:features,pwm:path_weight_matrix})
-    
+
     print("Test",evals[1], evals[2],"Validation",evals2[0], evals2[1])
 
 outs_val = sess.run([loss2, accuracy2], feed_dict={features_m:features,pwm:path_weight_matrix})
