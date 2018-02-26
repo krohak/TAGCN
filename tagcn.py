@@ -2,6 +2,8 @@ import tensorflow as tf
 import numpy as np
 
 from utils import *
+from metrics import *
+from inits import *
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -17,48 +19,134 @@ flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
 
-pwm = np.load("path_weights.dat")
-pwm = pwm.astype('float32')
 
-feat=features.todense()
+features = features.todense()
+
+# g = tf.get_default_graph()
+# [op.name for op in g.get_operations()]
+
+path_weight_matrix = np.load("path_weights.dat")
+path_weight_matrix = path_weight_matrix.astype('float32')
+
 
 from inits import *
-var_gs = {}
+# var_gs = {}
 name = '01'
 Fl = 8
 Kl = 2
-#Cl = features.shape[1]
-#Nl = features.shape[0]
-Cl = 10
-Nl = 10
+Cl = features.shape[1]
+Nl = features.shape[0]
 from tensorflow.python.framework.ops import reset_default_graph
 reset_default_graph()
 
-f = tf.placeholder(tf.float32, [Nl, Cl])
-path_weight_matrix = tf.placeholder(tf.float32, [Nl, Nl, 2])
-#output = tf.placeholder(tf.float32, [None])
 
-
-#f = tf.get_variable(name='f',dtype=tf.float32, shape=[Nl, Cl])
-#path_weight_matrix = tf.get_variable(name='path_weight_matrix',dtype=tf.float32, shape=[Nl, Nl, 2])
-#output = tf.get_variable(name='output',dtype=tf.float32, shape=[1,Fl])
+features_m = tf.placeholder(tf.float32, shape=[features.shape[0], features.shape[1]])
+pwm = tf.placeholder(tf.float32, [Nl, Nl, Kl])
 outputs=[]
 
-with tf.variable_scope( name + '_vars'):
-    for i in range(Nl):
-        conv = tf.get_variable("conv", shape=[1,Fl])
-        for k in range(Kl):
-            for c in range(Cl):
-                    var_gs = tf.get_variable(name='var_gs',initializer=tf.contrib.layers.xavier_initializer(),shape=[1,Fl])
-                    w_k = path_weight_matrix[i,:,k]
-                    x_c = f[0:,c]
-                    s = tf.matmul(tf.transpose(tf.expand_dims(w_k, 1)),tf.expand_dims(x_c, 1))
-                    conv = tf.add(conv,tf.multiply(s[0,0],var_gs))
-		    tf.get_variable_scope().reuse_variables()
-		    print(conv.shape)
-	outputs.append(conv)
+conv = np.zeros([Nl,Fl],dtype=np.float32)
+#tf.placeholder(tf.float32, shape=[Nl,Fl])
 
+# droupout
+features_m = tf.nn.dropout(features_m, 1-FLAGS.dropout)
+
+# layer 1
+with tf.variable_scope( name + '_vars'):
+
+    for k in range(Kl):
+
+        w_k = pwm[:,:,k]
+
+        s = tf.matmul(w_k,features_m)
+
+        G_k = tf.get_variable(name=('G_k_%s'%(k)),initializer=tf.contrib.layers.xavier_initializer(),shape=[Cl,Fl])
+
+        res = tf.matmul(s,G_k)
+
+        outputs.append(res)
+
+        conv = tf.add(conv,res)
+
+        print(conv.shape)
+
+        outputs.append(conv)
+
+# add bias
+initial = tf.zeros([Nl,Fl], dtype=tf.float32)
+bias = tf.Variable(initial, name='bias')
+
+conv = tf.add(conv,bias)
+
+# apply non-linearity
+conv = tf.nn.relu(conv)
+
+# layer 2
+with tf.variable_scope( name + '_vars'):
+
+    for k in range(Kl):
+
+        w_k = pwm[:,:,k]
+
+        s = tf.matmul(w_k,conv)
+
+        G_k = tf.get_variable(name=('G_k2_%s'%(k)),initializer=tf.contrib.layers.xavier_initializer(),shape=[Fl,Fl])
+
+        res = tf.matmul(s,G_k)
+
+        outputs.append(res)
+
+        conv = tf.add(conv,res)
+
+        print(conv.shape)
+
+        outputs.append(conv)
+
+# add bias
+initial = tf.zeros([Nl,Fl], dtype=tf.float32)
+bias = tf.Variable(initial, name='bias2')
+
+conv = tf.add(conv,bias)
+
+# apply non-linearity
+conv = tf.nn.relu(conv)
+
+
+# output
+with tf.variable_scope( name + '_vars'):
+
+    w_k = pwm[:,:,k]
+
+    s = tf.matmul(w_k,conv)
+
+    G_k = tf.get_variable(name=('G_k3_%s'%(k)),initializer=tf.contrib.layers.xavier_initializer(),shape=[Fl,7])
+
+    conv = tf.matmul(s,G_k)
+
+
+print(conv.shape)
+# add bias
+initial = tf.zeros([Nl,7], dtype=tf.float32)
+bias = tf.Variable(initial, name='bias3')
+conv = tf.add(conv,bias)
+
+
+# apply non-linearity
+conv = tf.nn.relu(conv)
+
+
+
+accuracy = masked_accuracy(conv,y_train, train_mask)
+
+loss= 0
+loss += masked_softmax_cross_entropy(conv, y_train, train_mask)
+
+optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
+opt_op = optimizer.minimize(loss)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
-print(sess.run(outputs, feed_dict={path_weight_matrix: pwm[:10,:10],f: feat[:10,:10]}))
+
+for epoch in range(FLAGS.epochs):
+
+    evals = sess.run([opt_op,accuracy,loss],feed_dict={features_m:features,pwm:path_weight_matrix})
+    print(evals[1], evals[2])
