@@ -40,6 +40,40 @@ from tensorflow.python.framework.ops import reset_default_graph
 reset_default_graph()
 
 
+# define weights, biases
+
+vars_F={}
+
+with tf.variable_scope(name + '_vars'):
+
+    for k in range(Kl):
+
+        vars_F['weights_' + str(0) + '_' + str(k)] = tf.get_variable(name=('weights_' + str(0) + '_' + str(k)),
+                                                                     initializer=tf.contrib.layers.xavier_initializer(),
+                                                                     shape=[Cl,Fl])
+    initial = tf.zeros([Nl,Fl], dtype=tf.float32)
+    vars_F['bias_' + str(0)] = tf.Variable(initial, name='bias')
+
+
+    for k in range(Kl):
+
+        vars_F['weights_' + str(1) + '_' + str(k)] = tf.get_variable(name=('weights_' + str(1) + '_' + str(k)),
+                                                                     initializer=tf.contrib.layers.xavier_initializer(),
+                                                                     shape=[Fl,Fl])
+    initial = tf.zeros([Nl,Fl], dtype=tf.float32)
+    vars_F['bias_' + str(1)] = tf.Variable(initial, name='bias')
+
+
+
+
+    vars_F['weights_' + str(2)] = tf.get_variable(name=('weights_' + str(2)),
+                                                                     initializer=tf.contrib.layers.xavier_initializer(),
+                                                                     shape=[Fl,7])
+    initial = tf.zeros([Nl,7], dtype=tf.float32)
+    vars_F['bias_' + str(2)] = tf.Variable(initial, name='bias')
+
+
+
 features_m = tf.placeholder(tf.float32, shape=[features.shape[0], features.shape[1]])
 pwm = tf.placeholder(tf.float32, [Nl, Nl, Kl])
 outputs=[]
@@ -51,92 +85,87 @@ conv = np.zeros([Nl,Fl],dtype=np.float32)
 features_m = tf.nn.dropout(features_m, 1-FLAGS.dropout)
 
 # layer 1
-with tf.variable_scope( name + '_vars'):
+for k in range(Kl):
 
-    for k in range(Kl):
+    w_k = pwm[:,:,k]
 
-        w_k = pwm[:,:,k]
+    s = tf.matmul(w_k,features_m)
 
-        s = tf.matmul(w_k,features_m)
+    G_k = vars_F['weights_' + str(0) + '_' + str(k)]
 
-        G_k = tf.get_variable(name=('G_k_%s'%(k)),initializer=tf.contrib.layers.xavier_initializer(),shape=[Cl,Fl])
+    res = tf.matmul(s,G_k)
 
-        res = tf.matmul(s,G_k)
+    outputs.append(res)
 
-        outputs.append(res)
+    conv = tf.add(conv,res)
 
-        conv = tf.add(conv,res)
+    print(conv.shape)
 
-        print(conv.shape)
+    outputs.append(conv)
 
-        outputs.append(conv)
+# add bias
+bias = vars_F['bias_' + str(0)]
 
-    # add bias
-    initial = tf.zeros([Nl,Fl], dtype=tf.float32)
-    bias = tf.Variable(initial, name='bias')
+conv = tf.add(conv,bias)
 
-    conv = tf.add(conv,bias)
-
-    # apply non-linearity
-    conv = tf.nn.relu(conv)
+# apply non-linearity
+conv = tf.nn.relu(conv)
 
 # droupout
 conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
 
 # layer 2
-with tf.variable_scope( name + '_vars'):
 
-    for k in range(Kl):
 
-        w_k = pwm[:,:,k]
-
-        s = tf.matmul(w_k,conv)
-
-        G_k = tf.get_variable(name=('G_k2_%s'%(k)),initializer=tf.contrib.layers.xavier_initializer(),shape=[Fl,Fl])
-
-        res = tf.matmul(s,G_k)
-
-        outputs.append(res)
-
-        conv = tf.add(conv,res)
-
-        print(conv.shape)
-
-        outputs.append(conv)
-
-    # add bias
-    initial = tf.zeros([Nl,Fl], dtype=tf.float32)
-    bias = tf.Variable(initial, name='bias2')
-
-    conv = tf.add(conv,bias)
-
-    # apply non-linearity
-    conv = tf.nn.relu(conv)
-
-# droupout
-conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
-
-# output
-with tf.variable_scope( name + '_vars'):
+for k in range(Kl):
 
     w_k = pwm[:,:,k]
 
     s = tf.matmul(w_k,conv)
 
-    G_k = tf.get_variable(name=('G_k3_%s'%(k)),initializer=tf.contrib.layers.xavier_initializer(),shape=[Fl,7])
+    G_k = vars_F['weights_' + str(1) + '_' + str(k)]
 
-    conv = tf.matmul(s,G_k)
+    res = tf.matmul(s,G_k)
 
+    outputs.append(res)
+
+    conv = tf.add(conv,res)
 
     print(conv.shape)
-    # add bias
-    initial = tf.zeros([Nl,7], dtype=tf.float32)
-    bias = tf.Variable(initial, name='bias3')
-    conv = tf.add(conv,bias)
+
+    outputs.append(conv)
+
+# add bias
+bias = vars_F['bias_' + str(1)]
+
+conv = tf.add(conv,bias)
+
+# apply non-linearity
+conv = tf.nn.relu(conv)
+
+# droupout
+conv = tf.nn.dropout(conv, 1-FLAGS.dropout)
 
 
-    # apply non-linearity
-    conv = tf.nn.relu(conv)
+
+# output layer
+w_k = pwm[:,:,k]
+
+s = tf.matmul(w_k,conv)
+
+G_k = vars_F['weights_' + str(2)]
+
+conv = tf.matmul(s,G_k)
+
+
+print(conv.shape)
+# add bias
+bias = vars_F['bias_' + str(2)]
+conv = tf.add(conv,bias)
+
+
+# apply non-linearity
+conv = tf.nn.relu(conv)
 
 
 # for training
