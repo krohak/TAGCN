@@ -179,7 +179,7 @@ class GCN(Model):
 
 class TAGCN(Model):
     def __init__(self, placeholders, input_dim, **kwargs):
-        super(GCN, self).__init__(**kwargs)
+        super(TAGCN, self).__init__(**kwargs)
 
         self.inputs = placeholders['features']
         self.input_dim = input_dim

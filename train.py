@@ -5,7 +5,7 @@ import time
 import tensorflow as tf
 
 from utils import *
-from models import GCN, MLP
+from models import GCN, MLP, TAGCN
 
 # Set random seed
 seed = 123
@@ -64,7 +64,7 @@ else:
 # }
 
 placeholders = {
-    'support': [tf.placeholder(tf.float32, [Nl, Nl, Kl]) for _ in range(num_supports)],
+    'support': tf.placeholder(tf.float32, [2708, 2708, 2]),
     'features': tf.placeholder(tf.float32, shape=[features.shape[0], features.shape[1]]),
     'labels': tf.placeholder(tf.float32, shape=(None, y_train.shape[1])),
     'labels_mask': tf.placeholder(tf.int32),
@@ -73,7 +73,7 @@ placeholders = {
 }
 
 # Create model
-model = model_func(placeholders, input_dim=[features.shape[0], features.shape[1]], logging=True)
+model = model_func(placeholders, input_dim=features.shape[1], logging=True)
 
 # Initialize session
 sess = tf.Session()

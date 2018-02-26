@@ -192,7 +192,7 @@ class TAGraphConvolution(Layer):
     def __init__(self, input_dim, output_dim, placeholders, dropout=0.,
                  sparse_inputs=False, act=tf.nn.relu, bias=False,
                  featureless=False, **kwargs):
-        super(GraphConvolution, self).__init__(**kwargs)
+        super(TAGraphConvolution, self).__init__(**kwargs)
 
         if dropout:
             self.dropout = placeholders['dropout']
@@ -209,11 +209,12 @@ class TAGraphConvolution(Layer):
         self.num_features_nonzero = placeholders['num_features_nonzero']
 
         with tf.variable_scope(self.name + '_vars'):
-            for i in range(len(self.support)):
-                self.vars['weights_' + str(i)] = glorot([input_dim, output_dim],
-                                                        name='weights_' + str(i))
+            for k in range(2):
+                self.vars['weights_' + str(k)] = glorot(shape=[input_dim, output_dim], name=('weights_' + str(k)))
             if self.bias:
-                self.vars['bias'] = zeros([output_dim], name='bias')
+                self.vars['bias'] = zeros([2708,output_dim], name='bias')
+
+        self.conv = np.zeros(output_dim,dtype=np.float32)
 
         if self.logging:
             self._log_vars()
@@ -228,19 +229,22 @@ class TAGraphConvolution(Layer):
             x = tf.nn.dropout(x, 1-self.dropout)
 
         # convolve
-        supports = list()
-        for i in range(len(self.support)):
-            if not self.featureless:
-                pre_sup = dot(x, self.vars['weights_' + str(i)],
-                              sparse=self.sparse_inputs)
-            else:
-                pre_sup = self.vars['weights_' + str(i)]
-            support = dot(self.support[i], pre_sup, sparse=True)
-            supports.append(support)
-        output = tf.add_n(supports)
+
+
+        for k in range(2):
+
+            w_k = self.support[:,:,k]
+
+            s = tf.matmul(w_k,x)
+
+            G_k = self.vars['weights_' + str(k)]
+
+            res = tf.matmul(s,G_k)
+
+            self.conv = tf.add(self.conv,res)
 
         # bias
         if self.bias:
-            output += self.vars['bias']
+            self.conv += self.vars['bias']
 
-        return self.act(output)
+        return self.act(self.conv)
