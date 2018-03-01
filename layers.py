@@ -236,13 +236,13 @@ class TAGraphConvolution(Layer):
         for k in range(2):
 
             w_k = self.support[:,:,k]
-
-            s = tf.matmul(w_k,x)
+            
+            # s = tf.matmul(w_k,x)
 
             G_k = self.vars['weights_' + str(k)]
 
-            res = tf.matmul(s,G_k)
-
+            res = tf.matmul(x,G_k) # res = tf.matmul(s,G_k)
+            res = tf.matmul(w_k,res) #
             supports.append(res)
 
         output = tf.add_n(supports)
