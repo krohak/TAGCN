@@ -124,5 +124,5 @@ test_cost, test_acc, test_duration = evaluate(features, support, y_test, test_ma
 print("Test set results:", "cost=", "{:.5f}".format(test_cost),
       "accuracy=", "{:.5f}".format(test_acc), "time=", "{:.5f}".format(test_duration))
 
-writer.close()
+# writer.close()
 model.save(sess=sess)

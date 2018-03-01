@@ -231,9 +231,9 @@ class TAGraphConvolution(Layer):
         # convolve
         # for k in range(2):
 
-        # w_k = self.support[:,:,k]
+        w_k = self.support[:,:,0]
 
-        s = x #tf.matmul(w_k,x)
+        s = tf.matmul(w_k,x) # x
 
         G_k = self.vars['weights_' + str(0)]
 
