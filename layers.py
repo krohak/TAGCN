@@ -218,7 +218,7 @@ class TAGraphConvolution(Layer):
             if self.bias:
                 # self.vars['bias'] = ones([1],name='bias')
                 # self.vars['bias'] = self.vars['bias'] * np.ones([2708,output_dim],dtype=np.float32)
-                self.vars['bias'] = zeros([output_dim], name='bias') # zeros([2708,output_dim], name='bias') 
+                self.vars['bias'] = zeros([output_dim], name='bias') # zeros([2708,output_dim], name='bias')
 
         self.conv = np.zeros(output_dim,dtype=np.float32)
 
@@ -237,12 +237,12 @@ class TAGraphConvolution(Layer):
 
             w_k = self.support[:,:,k]
 
-            # s = tf.matmul(w_k,x)
+            s = tf.matmul(w_k,x) #
 
             G_k = self.vars['weights_' + str(k)]
 
-            res = tf.matmul(x,G_k) # res = tf.matmul(s,G_k)
-            res = tf.matmul(w_k,res) #
+            res = tf.matmul(s,G_k) # res = tf.matmul(x,G_k) 
+            # res = tf.matmul(w_k,res)
             supports.append(res)
 
         output = tf.add_n(supports)
