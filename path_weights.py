@@ -6,7 +6,7 @@ from utils import *
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_string('dataset', 'cora', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
+flags.DEFINE_string('dataset', 'citeseer', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
 flags.DEFINE_string('model', 'gcn', 'Model string.')  # 'gcn', 'gcn_cheby', 'dense'
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('epochs', 200, 'Number of epochs to train.')
@@ -18,7 +18,7 @@ flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
 
-adj = normalize_adj(adj+sp.eye(adj.shape[0]))
+adj = normalize_adj(adj) # normalize_adj(adj+sp.eye(adj.shape[0]))
 adj = adj.toarray()
 
 G = nx.Graph(adj)
@@ -78,4 +78,4 @@ for k in range(1,Kl):
 			saved[i][j][k-1]=calculate_path_weight_norm(G,i,j,k)
 
 
-saved.dump("path_weights_norm_self.dat")
+saved.dump("citeseer_path_weights_norm.dat")
