@@ -212,7 +212,7 @@ class TAGraphConvolution(Layer):
             for k in range(2):
                 self.vars['weights_' + str(k)] = glorot(shape=[input_dim, output_dim], name=('weights_' + str(k)))
             if self.bias:
-                self.vars['bias'] = zeros([2708,output_dim], name='bias')
+                self.vars['bias'] = ones([2708,output_dim], name='bias')
 
         self.conv = np.zeros(output_dim,dtype=np.float32)
 
