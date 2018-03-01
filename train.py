@@ -15,7 +15,7 @@ tf.set_random_seed(seed)
 # Settings
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_string('dataset', 'cora', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
+flags.DEFINE_string('dataset', 'citeseer', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
 flags.DEFINE_string('model', 'tagcn', 'Model string.')  # 'gcn', 'gcn_cheby', 'dense'
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('epochs', 200, 'Number of epochs to train.')
@@ -46,7 +46,7 @@ elif FLAGS.model == 'dense':
     num_supports = 1
     model_func = MLP
 elif FLAGS.model == 'tagcn':
-    path_weight_matrix = np.load("path_weights_norm.dat")
+    path_weight_matrix = np.load("citeseer_path_weights_norm.dat")
     support =  path_weight_matrix.astype('float32')
     num_supports = 1
     model_func = TAGCN
@@ -64,7 +64,7 @@ else:
 # }
 
 placeholders = {
-    'support': tf.placeholder(tf.float32, [2708, 2708, 2]),
+    'support': tf.placeholder(tf.float32, [features.shape[0],features.shape[0], 2]),
     'features': tf.placeholder(tf.float32, shape=[features.shape[0], features.shape[1]]),
     'labels': tf.placeholder(tf.float32, shape=(None, y_train.shape[1])),
     'labels_mask': tf.placeholder(tf.int32),

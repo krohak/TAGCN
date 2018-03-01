@@ -6,7 +6,7 @@ from utils import *
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_string('dataset', 'citeseer', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
+flags.DEFINE_string('dataset', 'pubmed', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
 flags.DEFINE_string('model', 'gcn', 'Model string.')  # 'gcn', 'gcn_cheby', 'dense'
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('epochs', 200, 'Number of epochs to train.')
@@ -78,4 +78,4 @@ for k in range(1,Kl):
 			saved[i][j][k-1]=calculate_path_weight_norm(G,i,j,k)
 
 
-saved.dump("citeseer_path_weights_norm.dat")
+saved.dump("pubmed_path_weights_norm.dat")
