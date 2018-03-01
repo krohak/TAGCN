@@ -82,6 +82,8 @@ class Layer(object):
             tf.summary.histogram(self.name + '/vars/' + var, self.vars[var])
 
 
+
+
 class Dense(Layer):
     """Dense layer."""
     def __init__(self, input_dim, output_dim, placeholders, dropout=0., sparse_inputs=False,
@@ -127,7 +129,6 @@ class Dense(Layer):
             output += self.vars['bias']
 
         return self.act(output)
-
 
 class GraphConvolution(Layer):
     """Graph convolution layer."""
@@ -187,6 +188,8 @@ class GraphConvolution(Layer):
 
         return self.act(output)
 
+
+
 class TAGraphConvolution(Layer):
     """Graph convolution layer."""
     def __init__(self, input_dim, output_dim, placeholders, dropout=0.,
@@ -210,7 +213,7 @@ class TAGraphConvolution(Layer):
 
         with tf.variable_scope(self.name + '_vars'):
             for k in range(2):
-                self.vars['weights_' + str(k)] = glorot(shape=[input_dim, output_dim], name=('weights_' + str(k)))
+                self.vars['weights_' + str(k)] = tf.get_variable(shape=[input_dim, output_dim], name=('weights_' + str(k)), initializer=tf.contrib.layers.xavier_initializer())
             if self.bias:
                 self.vars['bias'] = ones([2708,output_dim], name='bias')
 
