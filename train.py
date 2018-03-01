@@ -78,7 +78,7 @@ model = model_func(placeholders, input_dim=features.shape[1], logging=True)
 # Initialize session
 sess = tf.Session()
 
-writer = tf.summary.FileWriter('/tmp', sess.graph)
+writer = tf.summary.FileWriter('tmp/', sess.graph)
 
 # Define model evaluation function
 def evaluate(features, support, labels, mask, placeholders):
