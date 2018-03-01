@@ -214,8 +214,8 @@ class TAGraphConvolution(Layer):
         with tf.variable_scope(self.name + '_vars'):
             for k in range(2):
                 self.vars['weights_' + str(k)] = tf.get_variable(shape=[input_dim, output_dim], name=('weights_' + str(k)), initializer=tf.contrib.layers.xavier_initializer())
-            if self.bias:
-                self.vars['bias'] = ones([2708,output_dim], name='bias')
+
+            self.vars['bias'] = ones([2708,output_dim], name='bias')
 
         self.conv = np.zeros(output_dim,dtype=np.float32)
 
