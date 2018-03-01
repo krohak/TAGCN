@@ -234,7 +234,7 @@ class TAGraphConvolution(Layer):
 
             w_k = self.support[:,:,k]
 
-            s = tf.matmul(w_k,x) # x
+            s = tf.matmul(w_k,x)
 
             G_k = self.vars['weights_' + str(k)]
 
@@ -247,6 +247,6 @@ class TAGraphConvolution(Layer):
 
         # bias
 
-        # self.conv += self.vars['bias']
+        output += self.vars['bias'] # self.conv += self.vars['bias']
 
         return self.act(output) # self.conv
