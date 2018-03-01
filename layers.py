@@ -218,7 +218,7 @@ class TAGraphConvolution(Layer):
             if self.bias:
                 # self.vars['bias'] = ones([1],name='bias')
                 # self.vars['bias'] = self.vars['bias'] * np.ones([2708,output_dim],dtype=np.float32)
-                self.vars['bias'] = zeros([2708,output_dim], name='bias') # zeros([output_dim], name='bias')
+                self.vars['bias'] = zeros([output_dim], name='bias') # zeros([2708,output_dim], name='bias') 
 
         self.conv = np.zeros(output_dim,dtype=np.float32)
 
