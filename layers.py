@@ -229,17 +229,17 @@ class TAGraphConvolution(Layer):
         x = tf.nn.dropout(x, 1-self.dropout)
 
         # convolve
-        for k in range(2):
+        # for k in range(2):
 
-            w_k = self.support[:,:,k]
+        # w_k = self.support[:,:,k]
 
-            s = x #tf.matmul(w_k,x)
+        s = x #tf.matmul(w_k,x)
 
-            G_k = self.vars['weights_' + str(k)]
+        G_k = self.vars['weights_' + str(0)]
 
-            res = tf.matmul(s,G_k)
+        res = tf.matmul(s,G_k)
 
-            self.conv = tf.add(self.conv,res)
+        self.conv = tf.add(self.conv,res)
 
         # bias
 
