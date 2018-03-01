@@ -78,6 +78,7 @@ model = model_func(placeholders, input_dim=features.shape[1], logging=True)
 # Initialize session
 sess = tf.Session()
 
+writer = tf.summary.FileWriter('/tmp', sess.graph)
 
 # Define model evaluation function
 def evaluate(features, support, labels, mask, placeholders):
@@ -123,7 +124,6 @@ test_cost, test_acc, test_duration = evaluate(features, support, y_test, test_ma
 print("Test set results:", "cost=", "{:.5f}".format(test_cost),
       "accuracy=", "{:.5f}".format(test_acc), "time=", "{:.5f}".format(test_duration))
 
-writer = tf.summary.FileWriter('/tmp', sess.graph)
 #writer.add_graph(tf.get_default_graph())
 writer.close()
 model.save(sess=sess)
