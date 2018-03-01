@@ -197,9 +197,11 @@ class TAGraphConvolution(Layer):
                  featureless=False, **kwargs):
         super(TAGraphConvolution, self).__init__(**kwargs)
 
+        if dropout:
+            self.dropout = placeholders['dropout']
+        else:
+            self.dropout = 0.
 
-        self.dropout = placeholders['dropout']
-        
         self.act = act
         self.support = placeholders['support']
         self.sparse_inputs = sparse_inputs
@@ -213,7 +215,8 @@ class TAGraphConvolution(Layer):
             for k in range(2):
                 self.vars['weights_' + str(k)] = tf.get_variable(shape=[input_dim, output_dim], name=('weights_' + str(k)), initializer=tf.contrib.layers.xavier_initializer())
 
-            self.vars['bias'] = zeros([2708,output_dim], name='bias')
+            if self.bias:
+                self.vars['bias'] = zeros([2708,output_dim], name='bias')
 
         self.conv = np.zeros(output_dim,dtype=np.float32)
 
@@ -244,7 +247,7 @@ class TAGraphConvolution(Layer):
         # self.conv = tf.add(self.conv,res)
 
         # bias
-
-        output += self.vars['bias'] # self.conv += self.vars['bias']
+        if self.bias:
+            output += self.vars['bias'] # self.conv += self.vars['bias']
 
         return self.act(output) # self.conv

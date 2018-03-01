@@ -125,4 +125,4 @@ print("Test set results:", "cost=", "{:.5f}".format(test_cost),
       "accuracy=", "{:.5f}".format(test_acc), "time=", "{:.5f}".format(test_duration))
 
 # writer.close()
-model.save(sess=sess)
+# model.save(sess=sess)
