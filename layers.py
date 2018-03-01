@@ -197,11 +197,9 @@ class TAGraphConvolution(Layer):
                  featureless=False, **kwargs):
         super(TAGraphConvolution, self).__init__(**kwargs)
 
-        if dropout:
-            self.dropout = placeholders['dropout']
-        else:
-            self.dropout = 0.
 
+        self.dropout = placeholders['dropout']
+        
         self.act = act
         self.support = placeholders['support']
         self.sparse_inputs = sparse_inputs
