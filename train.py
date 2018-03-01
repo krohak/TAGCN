@@ -46,7 +46,7 @@ elif FLAGS.model == 'dense':
     num_supports = 1
     model_func = MLP
 elif FLAGS.model == 'tagcn':
-    path_weight_matrix = np.load("path_weights.dat")
+    path_weight_matrix = np.load("path_weights_norm.dat")
     support =  path_weight_matrix.astype('float32')
     num_supports = 1
     model_func = TAGCN
