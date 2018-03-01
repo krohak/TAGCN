@@ -226,10 +226,7 @@ class TAGraphConvolution(Layer):
         x = inputs
 
         # dropout
-        if self.sparse_inputs:
-            x = sparse_dropout(x, 1-self.dropout, self.num_features_nonzero)
-        else:
-            x = tf.nn.dropout(x, 1-self.dropout)
+        x = tf.nn.dropout(x, 1-self.dropout)
 
         # convolve
         for k in range(2):
