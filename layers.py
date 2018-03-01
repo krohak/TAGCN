@@ -229,8 +229,6 @@ class TAGraphConvolution(Layer):
             x = tf.nn.dropout(x, 1-self.dropout)
 
         # convolve
-
-
         for k in range(2):
 
             w_k = self.support[:,:,k]
@@ -244,7 +242,7 @@ class TAGraphConvolution(Layer):
             self.conv = tf.add(self.conv,res)
 
         # bias
-        if self.bias:
-            self.conv += self.vars['bias']
+
+        self.conv += self.vars['bias']
 
         return self.act(self.conv)
