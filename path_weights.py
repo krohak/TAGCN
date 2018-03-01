@@ -17,6 +17,8 @@ flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
 
+adj = normalize_adj(adj)
+adj = adj.toarray()
 
 G = nx.Graph(adj)
 
@@ -30,7 +32,7 @@ def memoize(f):
                 memo[(x,y,z)]=p
                 print(x,y,z,p)
                 return memo[(x,y,z)]
-            
+
             return memo[(y,x,z)]
         return memo[(x,y,z)]
 
@@ -46,6 +48,20 @@ def calculate_path_weight(G, i, j, cutoff):
     return len(paths)
 
 
+@memoize
+def calculate_path_weight_norm(G, i, j, cutoff):
+    paths = nx.all_simple_paths(G, source=i, target=j,cutoff=cutoff)
+
+    path_weight = 0
+    for path in paths:
+        i = 1
+        weight = 1
+        while i < len(path):
+            weight *= adj[path[i-1]][path[i]]
+            i+=1
+        path_weight += weight
+
+    return path_weight
 
 
 
@@ -58,7 +74,7 @@ saved = np.zeros(shape=(features.shape[0],features.shape[0],2))
 for k in range(1,Kl):
 	for i in range(features.shape[0]):
 		for j in range(features.shape[0]):
-			saved[i][j][k-1]=calculate_path_weight(G,i,j,k)
+			saved[i][j][k-1]=calculate_path_weight_norm(G,i,j,k)
 
 
-saved.dump("path_weights.dat")
+saved.dump("path_weights_norm.dat")
