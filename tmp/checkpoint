@@ -1,0 +1,2 @@
+model_checkpoint_path: "tagcn.ckpt"
+all_model_checkpoint_paths: "tagcn.ckpt"
