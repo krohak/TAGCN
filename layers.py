@@ -215,7 +215,7 @@ class TAGraphConvolution(Layer):
             for k in range(2):
                 self.vars['weights_' + str(k)] = tf.get_variable(shape=[input_dim, output_dim], name=('weights_' + str(k)), initializer=tf.contrib.layers.xavier_initializer())
 
-            self.vars['bias'] = ones([2708,output_dim], name='bias')
+            self.vars['bias'] = zeros([2708,output_dim], name='bias')
 
         self.conv = np.zeros(output_dim,dtype=np.float32)
 
@@ -233,7 +233,7 @@ class TAGraphConvolution(Layer):
 
             w_k = self.support[:,:,k]
 
-            s = tf.matmul(w_k,x)
+            s = x #tf.matmul(w_k,x)
 
             G_k = self.vars['weights_' + str(k)]
 
@@ -243,6 +243,6 @@ class TAGraphConvolution(Layer):
 
         # bias
 
-        self.conv += self.vars['bias']
+        # self.conv += self.vars['bias']
 
         return self.act(self.conv)
