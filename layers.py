@@ -245,7 +245,7 @@ class TAGraphConvolution(Layer):
             G_k = self.vars['weights_' + str(k)]
 
             res = dot(x,G_k,sparse=self.sparse_inputs)  # res = tf.matmul(s,G_k)
-            res = dot(w_k,res,sparse=True)
+            res = dot(w_k,res)
             supports.append(res)
 
         output = tf.add_n(supports)
