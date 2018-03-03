@@ -230,6 +230,7 @@ class TAGCN(Model):
                                             act= tf.nn.relu,  #lambda x: x,
                                             bias =True,
                                             dropout=True,
+                                            sparse_inputs=False,
                                             logging=self.logging))
 
     def predict(self):
