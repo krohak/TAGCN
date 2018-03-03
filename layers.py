@@ -229,7 +229,10 @@ class TAGraphConvolution(Layer):
         x = inputs
 
         # dropout
-        x = tf.nn.dropout(x, 1-self.dropout)
+        if self.sparse_inputs:
+            x = sparse_dropout(x, 1-self.dropout, self.num_features_nonzero)
+        else:
+            x = tf.nn.dropout(x, 1-self.dropout)
 
         # convolve
         supports = list()
@@ -237,12 +240,12 @@ class TAGraphConvolution(Layer):
 
             w_k = self.support[:,:,k]
 
-            s = tf.matmul(w_k,x) #
+            # s = tf.matmul(w_k,x) #
 
             G_k = self.vars['weights_' + str(k)]
 
-            res = tf.matmul(s,G_k) # res = tf.matmul(x,G_k) 
-            # res = tf.matmul(w_k,res)
+            res = dot(x,G_k,sparse=self.sparse_inputs))  # res = tf.matmul(s,G_k)
+            res = dot(w_k,res,sparse=True)
             supports.append(res)
 
         output = tf.add_n(supports)
