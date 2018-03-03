@@ -31,7 +31,7 @@ adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_da
 # Some preprocessing
 # features = preprocess_features(features)
 
-#features = features.todense()
+features = features.todense()
 
 if FLAGS.model == 'gcn':
     support = [preprocess_adj(adj)]
@@ -65,7 +65,7 @@ else:
 
 placeholders = {
     'support': tf.placeholder(tf.float32, [features.shape[0],features.shape[0], 2]),
-    'features': tf.sparse_placeholder(tf.float32, shape=tf.constant(features.shape, dtype=tf.int64)),
+    'features': tf.placeholder(tf.float32, shape=tf.constant(features.shape, dtype=tf.int64)),
     'labels': tf.placeholder(tf.float32, shape=(None, y_train.shape[1])),
     'labels_mask': tf.placeholder(tf.int32),
     'dropout': tf.placeholder_with_default(0.5, shape=()),

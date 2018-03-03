@@ -212,7 +212,7 @@ class TAGCN(Model):
                                             act=tf.nn.relu,
                                             # bias=True,
                                             dropout=True,
-                                            sparse_inputs=True,
+                                            sparse_inputs=False,
                                             logging=self.logging))
 
         # self.layers.append(TAGraphConvolution(input_dim=FLAGS.hidden1,
